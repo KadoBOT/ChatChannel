@@ -1,22 +1,42 @@
 import React, { Component } from 'react';
 import Message from './Message';
-import Card from 'material-ui/lib/card/card';
-import List from 'material-ui/lib/lists/list';
+import {Card, List} from 'material-ui';
+import Firebase from 'firebase';
+import _ from 'lodash';
 
 class MessageList extends Component{
   constructor(props){
     super(props);
-    this.state = { message: ['Ola, how are you?', 'I am fine, and you?'] };
+    this.state = { messages: {} };
+    this.firebaseRef = new Firebase('https://react-chatapp.firebaseio.com/messages');
+    this.firebaseRef.on("child_added", msg => {
+      if(this.state.messages[msg.key()]){
+        return;
+      }
+
+      let msgVal = msg.val();
+      msgVal.key = msg.key();
+      this.state.messages[msgVal.key] = msgVal;
+      this.setState({messages: this.state.messages});
+    });
+    this.firebaseRef.on("child_removed", msg => {
+      var key = msg.key();
+      delete this.state.messages[key];
+      this.setState({messages: this.state.messages});
+    })
   }
 
   render(){
-    let messages = this.state.message.map( message => {
-      return <Message message={message} />
+    let messageNodes = _.values(this.state.messages).map( message => {
+      return <Message message={message.message} />
     })
     return (
-      <Card>
+      <Card style={{
+          flexGrow: 2,
+          marginLeft: 30
+        }}>
         <List>
-          {messages}
+          {messageNodes}
         </List>
       </Card>
     )

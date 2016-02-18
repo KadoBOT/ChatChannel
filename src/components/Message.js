@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import Avatar from 'material-ui/lib/avatar';
-import ListItem from 'material-ui/lib/lists/list-item';
+import {Avatar, ListItem} from 'material-ui';
 
 class Message extends Component {
   constructor(props){
